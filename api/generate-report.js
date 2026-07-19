@@ -1,4 +1,4 @@
-﻿export default async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'POST only' });
@@ -9,7 +9,9 @@
     return res.status(500).json({ error: 'OPENAI_API_KEY is not configured' });
   }
 
-  const { type = 'growth', student = {} } = req.body || {};
+  const body = req.body || {};
+  const { student = {} } = body;
+  const type = body.type || body.reportType || 'growth';
   const templateName = {
     growth: '성장 스토리: 지난달 → 이번 달 → 다음 목표',
     weekly: '주간 체크: 단어·리딩·리스닝·스피킹 변화',
@@ -26,7 +28,7 @@
         Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5.6-luna',
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
         input: prompt,
         max_output_tokens: 900
       })
